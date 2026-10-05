@@ -511,19 +511,18 @@ select:focus-visible {
 
 .route-path-sparkle {
   display: block;
-  stroke: #fff;
+  stroke: #f5ffff;
   stroke-linecap: round;
-  opacity: .95;
-  filter: drop-shadow(0 0 3px #fff)
-    drop-shadow(0 0 9px #8ff7ff)
-    drop-shadow(0 0 17px #2b9cff);
-  animation: selectedLightFlow 1.15s linear infinite;
+  opacity: .9;
+  filter: drop-shadow(0 0 2px #fff)
+    drop-shadow(0 0 7px #74efff);
+  animation: selectedLightFlow 2.1s linear infinite;
 }
 
 @keyframes selectedLightFlow {
-  0% { stroke-dashoffset: 0; opacity: .62; }
+  0% { stroke-dashoffset: 0; opacity: .7; }
   35% { opacity: 1; }
-  100% { stroke-dashoffset: -31; opacity: .62; }
+  100% { stroke-dashoffset: -28; opacity: .7; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -544,46 +543,43 @@ select:focus-visible {
 }
 
 .route-path-sparkle {
-  stroke-width: 4;
-  stroke-dasharray: .75 5.2;
+  stroke-width: 2.5;
+  stroke-dasharray: 6 22;
 }
 
 @keyframes selectedHaloPulse {
   0%, 100% {
-    opacity: .62;
-    stroke-width: 21;
+    opacity: .6;
+    stroke-width: 20;
     filter:
-      drop-shadow(0 0 6px rgba(182, 251, 255, .86))
-      drop-shadow(0 0 18px rgba(46, 197, 255, .82))
-      drop-shadow(0 0 36px rgba(31, 91, 255, .64));
+      drop-shadow(0 0 5px rgba(182, 251, 255, .82))
+      drop-shadow(0 0 14px rgba(46, 197, 255, .72));
   }
   50% {
-    opacity: .88;
-    stroke-width: 27;
+    opacity: .8;
+    stroke-width: 23;
     filter:
-      drop-shadow(0 0 10px rgba(224, 254, 255, 1))
-      drop-shadow(0 0 28px rgba(62, 217, 255, 1))
-      drop-shadow(0 0 55px rgba(44, 82, 255, .9));
+      drop-shadow(0 0 8px rgba(224, 254, 255, .96))
+      drop-shadow(0 0 20px rgba(62, 217, 255, .86));
   }
 }
 
 @keyframes selectedCorePulse {
   0%, 100% {
     stroke: #e9fcff;
-    stroke-width: 7.5;
+    stroke-width: 7;
     filter:
-      drop-shadow(0 0 4px #fff)
-      drop-shadow(0 0 11px #69efff)
-      drop-shadow(0 0 25px #168dff);
+      drop-shadow(0 0 3px #fff)
+      drop-shadow(0 0 9px #69efff)
+      drop-shadow(0 0 19px #168dff);
   }
   50% {
     stroke: #fff;
-    stroke-width: 9;
+    stroke-width: 8;
     filter:
-      drop-shadow(0 0 7px #fff)
-      drop-shadow(0 0 18px #8ff7ff)
-      drop-shadow(0 0 37px #168dff)
-      drop-shadow(0 0 56px rgba(38, 63, 255, .82));
+      drop-shadow(0 0 5px #fff)
+      drop-shadow(0 0 13px #8ff7ff)
+      drop-shadow(0 0 26px #168dff);
   }
 }
 
@@ -713,4 +709,85 @@ select:focus-visible {
 .destination-button:not(.is-selected):hover {
   background: rgba(42, 58, 84, .42);
   box-shadow: inset 0 0 0 .12cqh rgba(185, 224, 240, .68);
+}
+
+/* 青背景試作：配置や寸法は変えず、背景と発光の色だけを調整。 */
+body,
+.map-container {
+  background: #030b1f;
+}
+
+.map-region {
+  background:
+    radial-gradient(circle at 16% 15%, rgba(162, 217, 255, .52) 0 .055cqh, transparent .14cqh),
+    radial-gradient(circle at 73% 21%, rgba(159, 208, 255, .35) 0 .045cqh, transparent .12cqh),
+    radial-gradient(circle at 37% 78%, rgba(150, 197, 255, .32) 0 .05cqh, transparent .13cqh),
+    radial-gradient(ellipse at 50% 46%, rgba(22, 78, 157, .31), transparent 62%),
+    radial-gradient(ellipse at 24% 29%, rgba(22, 51, 111, .20), transparent 49%),
+    radial-gradient(ellipse at 77% 77%, rgba(17, 47, 104, .18), transparent 50%),
+    linear-gradient(135deg, #03102c, #061333 48%, #02091b);
+}
+
+.map-region::before {
+  background: radial-gradient(ellipse at 50% 47%, transparent 36%, rgba(1, 5, 19, .22) 72%, rgba(0, 3, 13, .61));
+}
+
+#map-lines {
+  filter: brightness(1.64) saturate(1.55) contrast(1.08)
+    drop-shadow(0 0 2px rgba(238, 250, 255, .84))
+    drop-shadow(0 0 7px rgba(109, 187, 255, .38));
+}
+
+.map-region.has-active-route #map-lines {
+  opacity: .73;
+  filter: brightness(1.27) saturate(1.4)
+    drop-shadow(0 0 2px rgba(223, 246, 255, .58))
+    drop-shadow(0 0 6px rgba(91, 171, 255, .26));
+}
+
+.info-panel {
+  background: radial-gradient(circle at 45% 46%, rgba(18, 60, 127, .22), transparent 51%),
+    linear-gradient(180deg, rgba(6, 20, 52, .96), rgba(3, 10, 29, .98));
+  border-left-color: rgba(93, 153, 227, .17);
+}
+
+.station-label {
+  border-color: rgba(110, 186, 255, .52);
+  box-shadow: 0 .35cqh 1.05cqh rgba(0, 0, 0, .5),
+    0 0 .48cqh rgba(81, 182, 255, .30),
+    0 0 1.1cqh rgba(48, 133, 242, .16);
+}
+
+.station-label.destination,
+.station-label.is-selected,
+.station-label.destination.is-selected {
+  border-color: rgba(170, 233, 255, .82);
+  box-shadow: 0 .4cqh 1.15cqh rgba(0, 0, 0, .55),
+    0 0 .65cqh rgba(218, 249, 255, .68),
+    0 0 1.35cqh rgba(38, 190, 255, .43);
+}
+
+.route-path-halo {
+  stroke: #079eff;
+  filter: drop-shadow(0 0 9px rgba(218, 253, 255, 1))
+    drop-shadow(0 0 22px rgba(38, 208, 255, 1))
+    drop-shadow(0 0 45px rgba(31, 91, 255, .85));
+}
+
+#travel-time-number {
+  color: #f4feff;
+  text-shadow: 0 0 .2cqh #fff,
+    0 0 .7cqh rgba(187, 247, 255, 1),
+    0 0 1.6cqh rgba(56, 212, 255, .82),
+    0 0 3cqh rgba(31, 105, 255, .52);
+}
+
+/* 路線ごとの光は SVG 内で重ねる。画像全体にはぼかしを掛けない。 */
+#map-lines {
+  filter: brightness(1.1) saturate(1.55);
+}
+
+.map-region.has-active-route #map-lines {
+  opacity: .69;
+  filter: brightness(1.05) saturate(1.38);
 }
