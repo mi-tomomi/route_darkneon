@@ -1,0 +1,716 @@
+/* ダークネオン版。通常・選択・ホバー状態の優先順位を保って整理。 */
+
+:root {
+  --map-width: 70.416667%;
+  --panel-left: 70.416667%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Noto Sans JP", "Noto Sans CJK JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", sans-serif;
+}
+
+.page-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.map-container {
+  position: relative;
+  container-type: size;
+  width: min(100%, calc(100vh * 16 / 9));
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.map-region {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--map-width);
+  height: 100%;
+  overflow: hidden;
+}
+
+#map-lines {
+  position: absolute;
+  display: block;
+  transition: filter .28s ease, opacity .28s ease;
+}
+
+.route-layer,
+.station-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.route-layer {
+  z-index: 2;
+}
+
+.station-layer {
+  z-index: 3;
+}
+
+.station-label {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 400 1.666667cqh/1.2 "Inter", "Hiragino Sans", sans-serif;
+  white-space: nowrap;
+  pointer-events: auto;
+}
+
+.station-label[data-registered="true"] {
+  cursor: pointer;
+}
+
+.station-label[data-station-id="hakusan"] {
+  margin-left: -.601852cqh;
+}
+
+.station-label[data-station-id="honkomagome"] {
+  margin-left: .601852cqh;
+}
+
+.station-label:focus-visible,
+button:focus-visible,
+select:focus-visible {
+  outline: .3cqh solid #ff4d6d;
+  outline-offset: .3cqh;
+}
+
+.station-label.destination {
+  font-weight: 700;
+  touch-action: manipulation;
+}
+
+.info-panel {
+  position: absolute;
+  left: var(--panel-left);
+  top: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0;
+  font-family: "Noto Sans", "Noto Sans JP", "Noto Sans CJK JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", sans-serif;
+}
+
+.destination-selector {
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  font-size: 1.65cqh;
+}
+
+.destination-button {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.origin-line,
+.destination-line {
+  position: absolute;
+  left: 6.666667cqh;
+  right: auto;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.origin-line {
+  top: 16.481481cqh;
+  height: 11.111111cqh;
+  display: flex;
+  align-items: baseline;
+  gap: 2.222222cqh;
+  line-height: 11.111111cqh;
+}
+
+.origin-line strong {
+  margin: 0;
+  font-family: "Noto Sans", "Noto Sans JP", "Noto Sans CJK JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", sans-serif;
+  font-size: 11.111111cqh;
+  font-weight: 700;
+  line-height: 11.111111cqh;
+  letter-spacing: 0;
+}
+
+.origin-line span {
+  font-family: "Noto Sans", "Noto Sans JP", "Noto Sans CJK JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", sans-serif;
+  font-size: 7.407407cqh;
+  font-weight: 500;
+  line-height: 11.111111cqh;
+}
+
+.destination-line {
+  top: 27.592593cqh;
+  font-family: "Noto Sans", "Noto Sans JP", "Noto Sans CJK JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", sans-serif;
+  font-size: 7.407407cqh;
+  font-weight: 500;
+  line-height: 11.111111cqh;
+}
+
+.destination-line strong {
+  font-weight: 500;
+}
+
+.time-line {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  display: block;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1cqh;
+  margin: 0;
+  font-family: "Noto Sans", "Noto Sans JP", "Noto Sans CJK JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", sans-serif;
+  white-space: nowrap;
+}
+
+.time-approx,
+.time-minutes,
+#travel-time-number {
+  position: absolute;
+  display: block;
+  margin: 0;
+}
+
+.time-approx {
+  left: 4.537037cqh;
+  top: 59.259259cqh;
+  font-size: 6.481481cqh;
+  font-weight: 400;
+  line-height: 8.796296cqh;
+}
+
+#travel-time-number {
+  left: 11.111111cqh;
+  top: 50.648148cqh;
+  font-family: "Damascus", "Helvetica", "Arial", sans-serif;
+  font-size: 26.851852cqh;
+  font-weight: 700;
+  font-kerning: none;
+  font-variant-numeric: normal;
+  line-height: 27.407407cqh;
+  letter-spacing: .833333cqh;
+}
+
+#travel-time-number.is-single-digit {
+  left: 26.447222cqh;
+  transform: translateX(-50%);
+  letter-spacing: 0;
+}
+
+#travel-time-number.is-wide-number {
+  left: 11.111111cqh;
+  top: 50.648148cqh;
+  transform: none;
+  letter-spacing: .833333cqh;
+}
+
+.time-minutes {
+  left: 41.481481cqh;
+  top: 59.240741cqh;
+  font-size: 6.481481cqh;
+  font-weight: 400;
+  line-height: 8.796296cqh;
+}
+
+.time-line.is-unregistered .time-approx,
+.time-line.is-unregistered .time-minutes {
+  display: none;
+}
+
+#travel-status {
+  position: absolute;
+  top: 65%;
+  left: 7%;
+  right: 5%;
+  margin: 0;
+  font-size: 1.5cqh;
+}
+
+.details {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  pointer-events: none;
+}
+
+.details::before {
+  content: "";
+  position: absolute;
+  left: 4.537037cqh;
+  top: 75.925926cqh;
+  width: 43.425926cqh;
+  border-top: 1px solid #ff9b2f;
+}
+
+.transfer-label,
+.transfer-unit,
+#transfer-count {
+  position: absolute;
+  font-weight: 400;
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.transfer-label {
+  left: 13.518519cqh;
+  top: 83.703704cqh;
+  font-size: 5cqh;
+}
+
+#transfer-count {
+  left: 26.574074cqh;
+  top: 80.185185cqh;
+  font-size: 8.333333cqh;
+}
+
+.transfer-unit {
+  left: 34.444444cqh;
+  top: 84.166667cqh;
+  font-size: 4.629630cqh;
+}
+
+.station-picker {
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  bottom: 3%;
+  display: grid;
+  gap: .65cqh;
+  font-size: 1.6cqh;
+}
+
+.station-picker[hidden] {
+  display: none;
+}
+
+.station-picker select {
+  min-width: 0;
+  width: 100%;
+  padding: .85cqh;
+  border: 1px solid #888;
+  border-radius: .5cqh;
+  background: #fff;
+  font: inherit;
+}
+
+.screen-reader-only,
+#travel-route {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.route-path-halo,
+.route-path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.route-path-sparkle {
+  fill: none;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+body {
+  background: #02050c;
+  color: #f5f8ff;
+}
+
+.map-container {
+  background: #050a16;
+}
+
+.station-label {
+  border-color: #4f607e;
+}
+
+.station-label:hover {
+  color: #fff;
+}
+
+.station-label:focus-visible,
+button:focus-visible,
+select:focus-visible {
+  outline-color: #72efff;
+}
+
+.station-label.is-selected {
+  outline-color: #43e6ff;
+  color: #fff;
+}
+
+.station-label.destination.is-selected {
+  outline-color: #62efff;
+  color: #fff;
+}
+
+.info-panel {
+  color: #f5f8ff;
+}
+
+.map-region {
+  isolation: isolate;
+  background: radial-gradient(ellipse at 54% 47%, rgba(42, 58, 91, .38) 0%, rgba(15, 24, 44, .16) 38%, transparent 66%),
+    repeating-linear-gradient(27deg, transparent 0 8.4cqh, rgba(103, 119, 147, .024) 8.5cqh 8.62cqh, transparent 8.72cqh 15.7cqh),
+    repeating-linear-gradient(146deg, transparent 0 12.2cqh, rgba(117, 129, 151, .02) 12.3cqh 12.44cqh, transparent 12.54cqh 21cqh),
+    linear-gradient(rgba(85, 104, 140, .028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(85, 104, 140, .028) 1px, transparent 1px),
+    radial-gradient(ellipse at center, #0b1220 0%, #070c16 55%, #03060c 100%);
+  background-size: auto, auto, auto, 4.2cqh 4.2cqh, 4.2cqh 4.2cqh, auto;
+}
+
+.map-region::before {
+  content: "";
+  position: absolute;
+  inset: -8%;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 52% 46%, transparent 28%, rgba(0, 2, 8, .16) 64%, rgba(0, 1, 5, .68) 100%),
+    repeating-linear-gradient(116deg, transparent 0 17cqh, rgba(148, 157, 173, .025) 17.1cqh 17.25cqh, transparent 17.35cqh 26cqh);
+}
+
+#map-lines {
+  z-index: 1;
+}
+
+.station-label {
+  transform: scale(.96);
+  transform-origin: center;
+  overflow: visible;
+  border: .08cqh solid rgba(127, 153, 194, .28);
+  border-radius: .62cqh;
+  background: rgba(8, 15, 29, .94);
+  color: #dce5f3;
+  font-size: 1.42cqh;
+  font-weight: 650;
+  letter-spacing: .015em;
+  text-shadow: none;
+  box-shadow: 0 .35cqh 1.05cqh rgba(0, 0, 0, .5),
+    0 0 .45cqh rgba(72, 113, 176, .12);
+  backdrop-filter: blur(2px);
+}
+
+.station-label:hover {
+  border-color: rgba(159, 220, 255, .68);
+  background: rgba(13, 27, 48, .97);
+  box-shadow: 0 .4cqh 1.1cqh rgba(0, 0, 0, .55),
+    0 0 .65cqh rgba(83, 187, 239, .3);
+}
+
+.station-label.is-selected,
+.station-label.destination.is-selected {
+  border-color: rgba(202, 245, 255, .85);
+  outline: .08cqh solid rgba(104, 219, 255, .42);
+  outline-offset: .12cqh;
+  background: rgba(11, 32, 53, .97);
+  box-shadow: 0 .4cqh 1.2cqh rgba(0, 0, 0, .58),
+    0 0 .45cqh rgba(238, 253, 255, .7),
+    0 0 1.1cqh rgba(67, 185, 240, .38);
+}
+
+.station-label.destination {
+  border-color: rgba(109, 194, 220, .48);
+  background: rgba(7, 23, 39, .96);
+  color: #f3f8ff;
+  box-shadow: 0 .4cqh 1.15cqh rgba(0, 0, 0, .55),
+    0 0 .55cqh rgba(67, 190, 224, .2);
+}
+
+.info-panel {
+  background: radial-gradient(circle at 45% 46%, rgba(24, 47, 76, .2), transparent 46%),
+    linear-gradient(180deg, rgba(9, 16, 29, .94), rgba(4, 8, 16, .97));
+  border-left: 1px solid rgba(112, 135, 171, .11);
+  box-shadow: inset 1cqh 0 2.4cqh rgba(0, 0, 0, .18);
+}
+
+.destination-selector {
+  color: #7f8ca2;
+}
+
+.destination-button {
+  border-color: rgba(115, 137, 170, .28);
+}
+
+.destination-button:hover {
+  border-color: rgba(133, 200, 225, .5);
+}
+
+.destination-button.is-selected {
+  border-color: rgba(179, 231, 245, .62);
+}
+
+.origin-line strong {
+  color: #e9f1fb;
+  text-shadow: none;
+}
+
+.origin-line span,
+.destination-line {
+  color: #8f9db2;
+}
+
+.time-line {
+  color: #f3f8ff;
+  text-shadow: 0 0 .7cqh rgba(113, 202, 235, .22);
+}
+
+#travel-status {
+  color: #718096;
+}
+
+.details::before {
+  border-color: rgba(111, 136, 169, .2);
+  box-shadow: none;
+}
+
+.transfer-label,
+.transfer-unit,
+#transfer-count {
+  color: #8795aa;
+}
+
+.route-path-halo {
+  stroke: #168dff;
+  opacity: .7;
+  filter: drop-shadow(0 0 7px rgba(182, 251, 255, .95))
+    drop-shadow(0 0 18px rgba(46, 197, 255, .95))
+    drop-shadow(0 0 38px rgba(31, 91, 255, .78));
+  animation: selectedHaloPulse 1.8s ease-in-out infinite;
+}
+
+.route-path {
+  stroke: #f5feff;
+  filter: drop-shadow(0 0 4px #fff)
+    drop-shadow(0 0 11px #69efff)
+    drop-shadow(0 0 25px #168dff)
+    drop-shadow(0 0 42px rgba(38, 63, 255, .72));
+  animation: selectedCorePulse 1.8s ease-in-out infinite;
+}
+
+.route-path-sparkle {
+  display: block;
+  stroke: #fff;
+  stroke-linecap: round;
+  opacity: .95;
+  filter: drop-shadow(0 0 3px #fff)
+    drop-shadow(0 0 9px #8ff7ff)
+    drop-shadow(0 0 17px #2b9cff);
+  animation: selectedLightFlow 1.15s linear infinite;
+}
+
+@keyframes selectedLightFlow {
+  0% { stroke-dashoffset: 0; opacity: .62; }
+  35% { opacity: 1; }
+  100% { stroke-dashoffset: -31; opacity: .62; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-path-halo,
+  .route-path,
+  .route-path-sparkle {
+    animation: none;
+  }
+  .route-path-sparkle { opacity: .75; }
+}
+
+.route-path-halo {
+  stroke-width: 24;
+}
+
+.route-path {
+  stroke-width: 8;
+}
+
+.route-path-sparkle {
+  stroke-width: 4;
+  stroke-dasharray: .75 5.2;
+}
+
+@keyframes selectedHaloPulse {
+  0%, 100% {
+    opacity: .62;
+    stroke-width: 21;
+    filter:
+      drop-shadow(0 0 6px rgba(182, 251, 255, .86))
+      drop-shadow(0 0 18px rgba(46, 197, 255, .82))
+      drop-shadow(0 0 36px rgba(31, 91, 255, .64));
+  }
+  50% {
+    opacity: .88;
+    stroke-width: 27;
+    filter:
+      drop-shadow(0 0 10px rgba(224, 254, 255, 1))
+      drop-shadow(0 0 28px rgba(62, 217, 255, 1))
+      drop-shadow(0 0 55px rgba(44, 82, 255, .9));
+  }
+}
+
+@keyframes selectedCorePulse {
+  0%, 100% {
+    stroke: #e9fcff;
+    stroke-width: 7.5;
+    filter:
+      drop-shadow(0 0 4px #fff)
+      drop-shadow(0 0 11px #69efff)
+      drop-shadow(0 0 25px #168dff);
+  }
+  50% {
+    stroke: #fff;
+    stroke-width: 9;
+    filter:
+      drop-shadow(0 0 7px #fff)
+      drop-shadow(0 0 18px #8ff7ff)
+      drop-shadow(0 0 37px #168dff)
+      drop-shadow(0 0 56px rgba(38, 63, 255, .82));
+  }
+}
+
+.station-label[data-station-id="hakusan"],
+.station-label[data-station-id="honkomagome"] {
+  transform: scale(1.08);
+  z-index: 2;
+}
+
+/* 本駒込は3文字なので、元の駅位置を中心に枠を広げる。 */
+.station-label.destination[data-station-id="honkomagome"] {
+  left: var(--station-center-x) !important;
+  width: max-content !important;
+  min-width: var(--station-width);
+  padding: 0 1cqh;
+  transform: translateX(-50%) scale(1.08);
+}
+
+#map-lines {
+  opacity: 1;
+  filter: brightness(1.28) saturate(1.12) contrast(1.04)
+    drop-shadow(0 0 1.5px rgba(255, 255, 255, .68))
+    drop-shadow(0 0 5px rgba(176, 232, 255, .2));
+}
+
+.map-region.has-active-route #map-lines {
+  opacity: .54;
+  filter: brightness(1.02) saturate(1)
+    drop-shadow(0 0 1px rgba(255, 255, 255, .35));
+}
+
+#travel-time-number {
+  color: #fff;
+  text-shadow: 0 0 .18cqh rgba(255, 255, 255, 1),
+    0 0 .55cqh rgba(205, 248, 255, .92),
+    0 0 1.35cqh rgba(79, 220, 255, .65),
+    0 0 2.6cqh rgba(35, 105, 255, .34);
+}
+
+.station-label {
+  padding: 0 .55cqh;
+  text-align: center;
+}
+
+.station-label.is-selected {
+  transform: scale(1.08);
+  z-index: 2;
+}
+
+.station-label.is-selected {
+  font-size: 2.037037cqh !important;
+}
+
+.station-label.is-selected:not(.destination) {
+  left: var(--station-center-x) !important;
+  width: max-content !important;
+  min-width: var(--station-width);
+  height: auto !important;
+  min-height: 3.148148cqh;
+  padding: .48cqh .9cqh;
+  transform: translateX(-50%) scale(1.08);
+}
+
+.destination-selector {
+  top: 2.2%;
+  right: 5.2%;
+  gap: 0;
+  padding: .55cqh;
+  border: 1px solid rgba(116, 139, 177, .12);
+  border-radius: 3.2cqh;
+  background: rgba(10, 19, 35, .96);
+  box-shadow: 0 .75cqh 1.5cqh rgba(0, 0, 0, .38),
+    inset 0 0 1.2cqh rgba(62, 90, 137, .08);
+}
+
+.destination-button {
+  min-width: 10.2cqh;
+  min-height: 5.2cqh;
+  padding: .8cqh 1.4cqh;
+  border: 0;
+  border-radius: 2.6cqh;
+  background: transparent;
+  color: #aeb9cc;
+  font: 700 2cqh/1 "Noto Sans JP", "Hiragino Sans", sans-serif;
+  box-shadow: none;
+  transition: background-color .2s ease, color .2s ease, box-shadow .2s ease;
+}
+
+.destination-button:hover {
+  border: 0;
+  background: rgba(42, 58, 84, .55);
+  color: #f2f6fd;
+  box-shadow: none;
+}
+
+.destination-button.is-selected {
+  border: 0;
+  background: #f1f5fb;
+  color: #101827;
+  box-shadow: 0 .28cqh .7cqh rgba(0, 0, 0, .26),
+    0 0 .65cqh rgba(220, 243, 255, .18);
+}
+
+.destination-button[data-destination-id="honkomagome"] {
+  min-width: 12.4cqh;
+  padding-right: 1.8cqh;
+  padding-left: 1.8cqh;
+}
+
+.destination-selector > span {
+  display: block;
+  position: absolute;
+  right: calc(100% + 1.15cqh);
+  top: 50%;
+  transform: translateY(-50%);
+  color: #aeb9cc;
+  font: 600 1.7cqh/1 "Noto Sans JP", "Hiragino Sans", sans-serif;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+
+.destination-button:not(.is-selected) {
+  background: transparent;
+  box-shadow: inset 0 0 0 .12cqh rgba(151, 171, 201, .42);
+}
+
+.destination-button:not(.is-selected):hover {
+  background: rgba(42, 58, 84, .42);
+  box-shadow: inset 0 0 0 .12cqh rgba(185, 224, 240, .68);
+}
